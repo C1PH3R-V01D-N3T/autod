@@ -1,0 +1,34 @@
+stages:
+  - build
+  - release
+
+build:
+  stage: build
+  image: gcc:latest
+
+  script:
+    - make
+
+  artifacts:
+    paths:
+      - autod
+
+  rules:
+    - if: $CI_COMMIT_BRANCH
+    - if: $CI_COMMIT_TAG
+
+
+release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/cli:latest
+
+  needs:
+    - build
+
+  rules:
+    - if: $CI_COMMIT_TAG
+
+  release:
+    tag_name: $CI_COMMIT_TAG
+    name: "Release $CI_COMMIT_TAG"
+    description: "Automated release"
